@@ -380,6 +380,7 @@ public data class AnthropicStreamResponse(
     val delta: AnthropicStreamDelta? = null,
     val message: AnthropicResponse? = null,
     val usage: AnthropicUsage? = null,
+    val error: AnthropicStreamError? = null
 )
 
 /**
@@ -399,6 +400,23 @@ public data class AnthropicStreamDelta(
     val text: String? = null,
     val toolUse: AnthropicResponseContent.ToolUse? = null,
     val stopReason: String? = null,
+)
+
+/**
+ * Represents an error that occurred during Anthropic streaming response processing.
+ *
+ * This data class encapsulates error information received from the Anthropic API
+ * during streaming operations, providing details about the type and nature of the error.
+ *
+ * @property type The type or category of the error that occurred.
+ * @property message An optional descriptive message providing additional details about the error.
+ * Defaults to null if no message is provided.
+ */
+@InternalLLMClientApi
+@Serializable
+public data class AnthropicStreamError(
+    val type: String,
+    val message: String? = null,
 )
 
 /**

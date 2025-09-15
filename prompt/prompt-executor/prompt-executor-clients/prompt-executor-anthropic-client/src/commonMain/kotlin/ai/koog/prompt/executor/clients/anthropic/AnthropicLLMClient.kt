@@ -37,6 +37,7 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.sse.ServerSentEvent
+import io.ktor.utils.io.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -177,6 +178,7 @@ public open class AnthropicLLMClient(
                 error("Error from Anthropic API: ${response.status}: ${e.message}")
             }
         } catch (e: Exception) {
+            if (e is CancellationException) throw e
             logger.error { "Exception during streaming: $e" }
             error(e.message ?: "Unknown error during streaming")
         }
@@ -420,6 +422,13 @@ public open class AnthropicLLMClient(
                         outputTokensCount = outputTokensCount,
                     )
                 )
+            }
+
+            "error" -> {
+                val response = event.data?.trim()?.let { json.decodeFromString<AnthropicStreamResponse>(it) }
+                response?.error?.let {
+                    throw Exception("Anthropic streaming error: $it")
+                }
             }
         }
 
