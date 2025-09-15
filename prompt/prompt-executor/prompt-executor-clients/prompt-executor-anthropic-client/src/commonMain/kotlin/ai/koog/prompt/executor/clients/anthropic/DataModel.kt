@@ -378,7 +378,8 @@ public data class AnthropicUsage(
 public data class AnthropicStreamResponse(
     val type: String,
     val delta: AnthropicStreamDelta? = null,
-    val message: AnthropicResponse? = null
+    val message: AnthropicResponse? = null,
+    val usage: AnthropicUsage? = null,
 )
 
 /**
@@ -396,7 +397,8 @@ public data class AnthropicStreamResponse(
 public data class AnthropicStreamDelta(
     val type: String,
     val text: String? = null,
-    val toolUse: AnthropicResponseContent.ToolUse? = null
+    val toolUse: AnthropicResponseContent.ToolUse? = null,
+    val stopReason: String? = null,
 )
 
 /**

@@ -30,6 +30,7 @@ import ai.koog.integration.tests.utils.TestUtils.readTestAnthropicKeyFromEnv
 import ai.koog.integration.tests.utils.TestUtils.readTestOpenAIKeyFromEnv
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
@@ -105,7 +106,7 @@ internal class ReportingLLMLLMClient(
         return underlyingClient.execute(prompt, model, tools)
     }
 
-    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> = flow {
+    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> = flow {
         coroutineScope {
             eventsChannel.send(
                 Event.Message(

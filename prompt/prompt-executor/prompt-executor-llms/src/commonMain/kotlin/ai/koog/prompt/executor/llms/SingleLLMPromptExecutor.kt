@@ -3,6 +3,7 @@ package ai.koog.prompt.executor.llms
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.model.LLMChoice
 import ai.koog.prompt.executor.model.PromptExecutor
@@ -36,7 +37,7 @@ public open class SingleLLMPromptExecutor(
         return response
     }
 
-    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
+    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
         logger.debug { "Executing streaming prompt: $prompt with model: $model" }
 
         return llmClient.executeStreaming(prompt, model)

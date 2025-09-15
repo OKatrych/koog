@@ -49,7 +49,7 @@ public interface KoogHttpClient {
      * Initiates a Server-Sent Events (SSE) streaming operation over an HTTP POST request.
      *
      * This function sends a request to the specified `path` with the given `request` payload,
-     * processes the streamed chunks of data from the server, and emits the processed results as a flow of strings.
+     * processes the streamed chunks of data from the server, and emits the processed results as a flow of type `E`.
      *
      * @param path The endpoint path to which the SSE POST request is sent.
      * @param request The request payload to be sent in the POST request.
@@ -60,18 +60,18 @@ public interface KoogHttpClient {
      * @param decodeStreamingResponse A lambda function used to decode the raw streaming response data
      * into the target type. It takes a raw string and converts it into an object of type `R`.
      * @param processStreamingChunk A lambda function that processes the decoded streaming chunk and returns
-     * a string result. If the returned value is `null`, the chunk will not be emitted to the resulting flow.
-     * @return A [Flow] emitting processed strings derived from the streamed chunks of data.
+     * a result of type `E`. If the returned value is `null`, the chunk will not be emitted to the resulting flow.
+     * @return A [Flow] emitting processed objects of type `E` derived from the streamed chunks of data.
      */
     @Suppress("LongParameterList")
-    public fun <T : Any, R : Any> sse(
+    public fun <T : Any, R : Any, E: Any> sse(
         path: String,
         request: T,
         requestBodyType: KClass<T>,
         dataFilter: (String?) -> Boolean = { true },
         decodeStreamingResponse: (String) -> R,
-        processStreamingChunk: (R) -> String?
-    ): Flow<String>
+        processStreamingChunk: (R) -> E?
+    ): Flow<E>
 
     public companion object
 }

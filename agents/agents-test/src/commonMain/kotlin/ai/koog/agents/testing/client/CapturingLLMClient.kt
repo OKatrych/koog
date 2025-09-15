@@ -3,6 +3,7 @@ package ai.koog.agents.testing.client
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.model.LLMChoice
 import ai.koog.prompt.llm.LLModel
@@ -24,7 +25,7 @@ import kotlinx.coroutines.flow.flowOf
  */
 public class CapturingLLMClient(
     private val executeResponses: List<Message.Response> = emptyList(),
-    private val streamingChunks: List<String> = emptyList(),
+    private val streamingChunks: List<StreamingResult> = emptyList(),
     private val choices: List<LLMChoice> = emptyList(),
     private val moderationResult: ModerationResult = ModerationResult(isHarmful = false, categories = emptyMap()),
 ) : LLMClient {
@@ -78,7 +79,7 @@ public class CapturingLLMClient(
      * Simulates a streaming LLM execution.
      * Captures input parameters and emits the predefined [streamingChunks].
      */
-    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
+    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
         lastStreamingPrompt = prompt
         lastStreamingModel = model
         return flowOf(*streamingChunks.toTypedArray())

@@ -6,6 +6,7 @@ import ai.koog.agents.core.tools.ToolParameterType
 import ai.koog.agents.utils.KoogHttpClient
 import ai.koog.agents.utils.fromKtorClient
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.clients.ConnectionTimeoutConfig
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.clients.openai.base.models.Content
@@ -152,14 +153,14 @@ public abstract class AbstractOpenAILLMClient<TResponse : OpenAIBaseLLMResponse,
      * Processes a provider-specific streaming response chunk.
      * Must be implemented by concrete client classes.
      */
-    protected abstract fun processStreamingChunk(chunk: TStreamResponse): String?
+    protected abstract fun processStreamingChunk(chunk: TStreamResponse): StreamingResult?
 
     override suspend fun execute(prompt: Prompt, model: LLModel, tools: List<ToolDescriptor>): List<Message.Response> {
         val response = getResponse(prompt, model, tools)
         return processProviderChatResponse(response).first()
     }
 
-    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
+    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
         logger.debug { "Executing streaming prompt: $prompt with model: $model" }
         model.requireCapability(LLMCapability.Completion)
 

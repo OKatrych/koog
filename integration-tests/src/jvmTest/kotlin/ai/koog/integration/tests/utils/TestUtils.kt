@@ -7,6 +7,7 @@ import ai.koog.agents.core.tools.ToolParameterDescriptor
 import ai.koog.agents.core.tools.ToolParameterType
 import ai.koog.agents.core.tools.annotations.LLMDescription
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.structure.RegisteredStandardJsonSchemaGenerators
@@ -234,12 +235,14 @@ object TestUtils {
         private val bulletHandler: ((String) -> Unit)?,
         private val finishHandler: (() -> Unit)?
     ) {
-        suspend fun parseStream(stream: Flow<String>) {
+        suspend fun parseStream(stream: Flow<StreamingResult>) {
             val buffer = kotlin.text.StringBuilder()
 
-            stream.collect { chunk ->
-                buffer.append(chunk)
-                processBuffer(buffer)
+            stream.collect { streamingResult ->
+                if (streamingResult is StreamingResult.Chunk) {
+                    buffer.append(streamingResult.content)
+                    processBuffer(buffer)
+                }
             }
 
             processBuffer(buffer, isEnd = true)
@@ -286,7 +289,7 @@ object TestUtils {
         }
     }
 
-    fun parseMarkdownStreamToCountries(markdownStream: Flow<String>): Flow<Country> {
+    fun parseMarkdownStreamToCountries(markdownStream: Flow<StreamingResult>): Flow<Country> {
         return flow {
             val countries = mutableListOf<Country>()
             var currentCountryName = ""

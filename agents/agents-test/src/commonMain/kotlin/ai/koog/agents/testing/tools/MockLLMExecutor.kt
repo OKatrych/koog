@@ -81,13 +81,13 @@ internal class MockLLMExecutor(
     }
 
     /**
-     * Executes a prompt and returns a flow of string responses.
+     * Executes a prompt and returns a flow of StreamingResult responses.
      *
      * This implementation simply wraps the result of [execute] in a flow.
      *
      * @param prompt The prompt to execute
      * @param model The LLM model to use (ignored in mock implementation)
-     * @return A flow containing a single string response
+     * @return A flow containing a single StreamingResult response
      */
     override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> = flow {
         val response = execute(prompt = prompt, model = model).single()

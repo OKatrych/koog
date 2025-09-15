@@ -3,6 +3,7 @@ package ai.koog.prompt.executor.clients
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.model.LLMChoice
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
@@ -32,9 +33,9 @@ public interface LLMClient {
      *
      * @param prompt The prompt to execute
      * @param model The LLM model to use
-     * @return Flow of response chunks
+     * @return Flow of partial streaming results
      */
-    public fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String>
+    public fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult>
 
     /**
      * Executes a prompt and returns a list of LLM choices.

@@ -5,6 +5,7 @@ import ai.koog.prompt.dsl.ModerationCategory
 import ai.koog.prompt.dsl.ModerationCategoryResult
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.clients.ConnectionTimeoutConfig
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.executor.clients.LLMEmbeddingProvider
@@ -217,7 +218,7 @@ public open class OpenAILLMClient(
     override fun decodeResponse(data: String): OpenAIChatCompletionResponse =
         json.decodeFromString(data)
 
-    override fun processStreamingChunk(chunk: OpenAIChatCompletionStreamResponse): String? =
+    override fun processStreamingChunk(chunk: OpenAIChatCompletionStreamResponse): StreamingResult? =
         chunk.choices.firstOrNull()?.delta?.content
 
     override suspend fun execute(prompt: Prompt, model: LLModel, tools: List<ToolDescriptor>): List<Message.Response> {
@@ -233,7 +234,7 @@ public open class OpenAILLMClient(
         }
     }
 
-    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
+    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
         return selectExecutionStrategy(prompt, model) { params ->
             when (params) {
                 is OpenAIResponsesParams -> executeResponsesStreaming(prompt, model, params)
@@ -242,7 +243,7 @@ public open class OpenAILLMClient(
         }
     }
 
-    private fun executeResponsesStreaming(prompt: Prompt, model: LLModel, params: OpenAIResponsesParams): Flow<String> {
+    private fun executeResponsesStreaming(prompt: Prompt, model: LLModel, params: OpenAIResponsesParams): Flow<StreamingResult> {
         logger.debug { "Executing streaming prompt: $prompt with model: $model" }
 
         val messages = convertPromptToInput(prompt, model)

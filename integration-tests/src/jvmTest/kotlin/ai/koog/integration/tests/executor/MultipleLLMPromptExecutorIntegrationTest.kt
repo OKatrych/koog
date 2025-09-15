@@ -26,6 +26,7 @@ import ai.koog.integration.tests.utils.TestUtils.readTestGoogleAIKeyFromEnv
 import ai.koog.integration.tests.utils.TestUtils.readTestOpenAIKeyFromEnv
 import ai.koog.integration.tests.utils.annotations.Retry
 import ai.koog.prompt.dsl.ModerationCategory
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.dsl.prompt
 import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
 import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
@@ -206,7 +207,9 @@ class MultipleLLMPromptExecutorIntegrationTest {
             assertTrue(responseChunks.isNotEmpty(), "Response chunks should not be empty")
 
             // Combine all chunks to check the full response
-            val fullResponse = responseChunks.joinToString("")
+            val fullResponse = responseChunks
+                .mapNotNull { (it as? StreamingResult.Chunk)?.content }
+                .joinToString("")
             assertTrue(
                 fullResponse.contains("1") &&
                     fullResponse.contains("2") &&
@@ -490,7 +493,7 @@ class MultipleLLMPromptExecutorIntegrationTest {
             user("Count from 1 to 5.")
         }
 
-        val responseChunks = mutableListOf<String>()
+        val responseChunks = mutableListOf<StreamingResult>()
         val client = when (model.provider) {
             is LLMProvider.Anthropic -> anthropicClient
             is LLMProvider.Google -> googleClient
@@ -505,7 +508,9 @@ class MultipleLLMPromptExecutorIntegrationTest {
 
             assertTrue(responseChunks.isNotEmpty(), "Response chunks should not be empty")
 
-            val fullResponse = responseChunks.joinToString("")
+            val fullResponse = responseChunks
+                .mapNotNull { (it as? StreamingResult.Chunk)?.content }
+                .joinToString("")
             assertTrue(
                 fullResponse.contains("1") &&
                     fullResponse.contains("2") &&

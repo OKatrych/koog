@@ -5,6 +5,7 @@ import ai.koog.agents.core.tools.ToolParameterType
 import ai.koog.agents.utils.SuitableForIO
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.clients.ConnectionTimeoutConfig
 import ai.koog.prompt.executor.clients.LLMClient
 import ai.koog.prompt.llm.LLMCapability
@@ -35,6 +36,7 @@ import io.ktor.http.HttpMethod
 import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
+import io.ktor.sse.ServerSentEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -144,7 +146,7 @@ public open class AnthropicLLMClient(
         }
     }
 
-    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> = flow {
+    override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> = flow {
         logger.debug { "Executing streaming prompt: $prompt with model: $model without tools" }
         require(model.capabilities.contains(LLMCapability.Completion)) {
             "Model ${model.id} does not support chat completions"
@@ -166,10 +168,7 @@ public open class AnthropicLLMClient(
                 }
             ) {
                 incoming.collect { event ->
-                    event
-                        .takeIf { it.event == "content_block_delta" }
-                        ?.data?.trim()?.let { json.decodeFromString<AnthropicStreamResponse>(it) }
-                        ?.delta?.text?.let { emit(it) }
+                    processAnthropicStreamResponse(event)?.let { emit(it) }
                 }
             }
         } catch (e: SSEClientException) {
@@ -396,6 +395,35 @@ public open class AnthropicLLMClient(
             // Just return responses
             else -> responses
         }
+    }
+
+    private fun processAnthropicStreamResponse(event: ServerSentEvent): StreamingResult? {
+        when (event.event) {
+            "content_block_delta" -> {
+                event.data?.trim()?.let { json.decodeFromString<AnthropicStreamResponse>(it) }
+                    ?.delta?.text?.let { StreamingResult.Chunk(it) }
+            }
+
+            "message_delta" -> {
+                val response =
+                    event.data?.trim()?.let { json.decodeFromString<AnthropicStreamResponse>(it) }
+                val finishReason = response?.delta?.stopReason
+                val inputTokensCount = response?.usage?.inputTokens
+                val outputTokensCount = response?.usage?.outputTokens
+                val totalTokensCount = response?.usage?.let { it.inputTokens + it.outputTokens }
+                return StreamingResult.Finish(
+                    finishReason = finishReason,
+                    metaInfo = ResponseMetaInfo.create(
+                        clock,
+                        totalTokensCount = totalTokensCount,
+                        inputTokensCount = inputTokensCount,
+                        outputTokensCount = outputTokensCount,
+                    )
+                )
+            }
+        }
+
+        return null
     }
 
     /**

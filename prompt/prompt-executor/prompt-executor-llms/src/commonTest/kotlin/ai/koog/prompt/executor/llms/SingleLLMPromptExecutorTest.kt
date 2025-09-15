@@ -6,6 +6,7 @@ import ai.koog.prompt.dsl.ModerationCategory
 import ai.koog.prompt.dsl.ModerationCategoryResult
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.model.LLMChoice
 import ai.koog.prompt.llm.LLMProvider
 import ai.koog.prompt.llm.LLModel
@@ -58,7 +59,12 @@ class SingleLLMPromptExecutorTest {
 
     @Test
     fun testExecuteStreaming() = runTest {
-        val chunks = listOf("hello", " ", "world")
+        val chunks = listOf(
+            StreamingResult.Chunk("hello"),
+            StreamingResult.Chunk(" "),
+            StreamingResult.Chunk("world"),
+            StreamingResult.Finish("stop", ResponseMetaInfo.create(mockClock))
+        )
         val client = CapturingLLMClient(streamingChunks = chunks)
         val executor = SingleLLMPromptExecutor(client)
         val prompt = Prompt.build("p2") { user("Hello!") }

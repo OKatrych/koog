@@ -2,6 +2,7 @@ package ai.koog.prompt.executor.llms.all
 
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.executor.clients.anthropic.AnthropicLLMClient
 import ai.koog.prompt.executor.clients.anthropic.AnthropicModels
 import ai.koog.prompt.executor.clients.google.GoogleLLMClient
@@ -41,8 +42,13 @@ class MultipleLLMPromptExecutorMockTest {
             return listOf(Message.Assistant("OpenAI response", ResponseMetaInfo.create(mockClock)))
         }
 
-        override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
-            return flowOf("OpenAI", " streaming", " response")
+        override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
+            return flowOf(
+                StreamingResult.Chunk("OpenAI"),
+                StreamingResult.Chunk(" streaming"),
+                StreamingResult.Chunk(" response"),
+                StreamingResult.Finish("stop", ResponseMetaInfo.create(mockClock))
+            )
         }
     }
 
@@ -56,8 +62,13 @@ class MultipleLLMPromptExecutorMockTest {
             return listOf(Message.Assistant("Anthropic response", ResponseMetaInfo.create(mockClock)))
         }
 
-        override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
-            return flowOf("Anthropic", " streaming", " response")
+        override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
+            return flowOf(
+                StreamingResult.Chunk("Anthropic"),
+                StreamingResult.Chunk(" streaming"),
+                StreamingResult.Chunk(" response"),
+                StreamingResult.Finish("stop", ResponseMetaInfo.create(mockClock))
+            )
         }
     }
 
@@ -71,8 +82,13 @@ class MultipleLLMPromptExecutorMockTest {
             return listOf(Message.Assistant("Gemini response", ResponseMetaInfo.create(mockClock)))
         }
 
-        override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String> {
-            return flowOf("Gemini", " streaming", " response")
+        override fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult> {
+            return flowOf(
+                StreamingResult.Chunk("Gemini"),
+                StreamingResult.Chunk(" streaming"),
+                StreamingResult.Chunk(" response"),
+                StreamingResult.Finish("stop", ResponseMetaInfo.create(mockClock))
+            )
         }
     }
 

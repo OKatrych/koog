@@ -3,6 +3,7 @@ package ai.koog.prompt.executor.model
 import ai.koog.agents.core.tools.ToolDescriptor
 import ai.koog.prompt.dsl.ModerationResult
 import ai.koog.prompt.dsl.Prompt
+import ai.koog.prompt.dsl.StreamingResult
 import ai.koog.prompt.llm.LLModel
 import ai.koog.prompt.message.Message
 import kotlinx.coroutines.flow.Flow
@@ -33,13 +34,13 @@ public interface PromptExecutor {
     ): List<Message.Response>
 
     /**
-     * Executes a given prompt using the specified language model and returns a stream of output as a flow of strings.
+     * Executes a given prompt using the specified language model and returns a stream of output as a flow of StreamingResult objects.
      *
      * @param prompt The prompt containing input messages and parameters to guide the language model execution.
      * @param model The language model to be used for processing the prompt.
-     * @return A flow emitting strings that represent the streaming output of the language model.
+     * @return A flow emitting StreamingResult objects that represent the streaming output of the language model.
      */
-    public fun executeStreaming(prompt: Prompt, model: LLModel): Flow<String>
+    public fun executeStreaming(prompt: Prompt, model: LLModel): Flow<StreamingResult>
 
     /**
      * Receives multiple independent choices from the LLM.
