@@ -102,9 +102,9 @@ android-tools-gradle = { module = "com.android.tools.build:gradle", version.ref 
 
 # Spring
 spring-boot-bom = { module = "org.springframework.boot:spring-boot-dependencies", version.ref = "spring-boot" }
-spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter" }
+spring-boot-starter = { module = "org.springframework.boot:spring-boot-starter"}
 spring-boot-starter-test = { module = "org.springframework.boot:spring-boot-starter-test" }
-jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin" }
+jackson-module-kotlin = { module = "com.fasterxml.jackson.module:jackson-module-kotlin"}
 reactor-kotlin-extensions = { module = "io.projectreactor.kotlin:reactor-kotlin-extensions" }
 
 [bundles]
